@@ -16,22 +16,41 @@ def init_db():
             risk_label TEXT,
             confidence REAL,
             pause_rate REAL,
-            vocab_richness REAL
+            vocab_richness REAL,
+            word_count INTEGER,
+            speech_rate REAL,
+            initial_latency REAL,
+            acoustic_texture REAL,
+            mfcc_delta REAL,
+            speech_brightness REAL,
+            emotional_range REAL
         )
     ''')
     conn.commit()
     conn.close()
 
-def save_result(patient_id, label, conf, pause, vocab):
+def save_result(patient_id, label, conf, data):
     """Saves a new scan to the database."""
     conn = sqlite3.connect(DB_NAME)
     c = conn.cursor()
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     
     c.execute('''
-        INSERT INTO records (timestamp, patient_id, risk_label, confidence, pause_rate, vocab_richness)
-        VALUES (?, ?, ?, ?, ?, ?)
-    ''', (timestamp, patient_id, label, conf, pause, vocab))
+        INSERT INTO records (
+            timestamp, patient_id, risk_label, confidence, 
+            pause_rate, vocab_richness, word_count, speech_rate,
+            initial_latency, acoustic_texture, mfcc_delta,
+            speech_brightness, emotional_range
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ''', (
+        timestamp, patient_id, label, conf, 
+        data['pause_rate'][0], data['vocab_richness'][0], 
+        int(data['word_count'][0]), data['speech_rate'][0],
+        data['initial_latency'][0], data['acoustic_texture'][0],
+        data['mfcc_delta'][0], data['speech_brightness'][0],
+        data['emotional_range'][0]
+    ))
     
     conn.commit()
     conn.close()

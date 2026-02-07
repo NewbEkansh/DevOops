@@ -53,6 +53,12 @@ def generate_pdf(patient_id, stats, risk_label, filename="report.pdf"):
         ("Pause Rate", f"{stats['pause_rate']:.2f}", "< 0.40"),
         ("Vocab Richness", f"{stats['vocab_richness']:.2f}", "> 0.50"),
         ("Word Count", f"{stats['word_count']}", "N/A"),
+        ("Speech Rate", f"{stats['speech_rate']:.2f}", "> 2.5 sps"),
+        ("Initial Latency", f"{stats['initial_latency']:.2f}s", "< 0.5s"),
+        ("Acoustic Texture", f"{stats['acoustic_texture']:.2f}", "Baseline"),
+        ("MFCC Delta", f"{stats['mfcc_delta']:.4f}", "High Var"),
+        ("Speech Brightness", f"{stats['speech_brightness']:.0f}", "> 1500 Hz"),
+        ("Emotional Range", f"{stats['emotional_range']:.2f}", "> 50"),
     ]
     
     for row in data:

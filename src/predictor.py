@@ -35,28 +35,23 @@ except Exception as e:
     print(f"⚠️ Model Load Error: {e}")
 
 def generate_clinical_summary(features_df):
-    """Refined summary logic to ensure the Streamlit box populates with insights."""
+    """Generates softer, elderly-friendly clinical observations."""
     try:
-        # Extract specific biomarkers from the current scan
+        # Extract values
         p_rate = features_df['pause_rate'].iloc[0]
-        v_rich = features_df['vocab_richness'].iloc[0]
         s_rate = features_df['speech_rate'].iloc[0]
         
-        reasons = []
-        
-        # Clinical reasoning based on your 9-parameter fingerprints
-        if p_rate > 0.30:
-            reasons.append(f"Hesitation detected: Pause Rate ({p_rate}) exceeds clinical baseline.")
-        if v_rich < 0.85:
-            reasons.append(f"Reduced lexical diversity: Vocab Richness ({v_rich}) indicates potential 'empty speech'.")
-        if s_rate < 2.2:
-            reasons.append(f"Slower tempo: Speech Rate ({s_rate} wps) correlates with increased cognitive effort.")
+        observations = []
+        # Using supportive, clinical language
+        if p_rate > 0.4:
+            observations.append("Observed slight hesitations in natural speech rhythm.")
+        if s_rate < 1.8:
+            observations.append("Speech tempo is currently below the standardized baseline.")
             
-        if not reasons:
-            return "✅ Speech biomarkers align with established healthy neurological baselines."
+        if not observations:
+            return "Speech biomarkers reflect a stable and healthy cognitive baseline."
         
-        # Join reasons with a clean separator for the UI box
-        return " | ".join(reasons)
+        return " | ".join(observations)
     except Exception as e:
         return f"Summary generation error: {str(e)}"
 
@@ -131,13 +126,14 @@ def get_prediction(audio_path):
 
     if clf is not None:
         probabilities = clf.predict_proba(features_final)[0] 
-        confidence = np.max(probabilities) * 100 
+        # Fix: Cap confidence to a realistic 0-100% range
+        confidence = min(float(np.max(probabilities) * 100), 99.9)
         prediction_class = clf.predict(features_final)[0]
         
         labels = {0: "Healthy", 1: "Mild Decline", 2: "Moderate Decline", 3: "Severe Decline"}
         result_text = labels.get(prediction_class, "Unknown")
         
-        return result_text, round(confidence, 2), features_df
+        return result_text, round(confidence, 1), features_df
 
     return "Demo (Heuristic)", 90.0, features_df
 
