@@ -105,20 +105,91 @@ tab1, tab2, tab3 = st.tabs(["🎙️ New Assessment", "📊 Biomarker Details", 
 # TAB 1: LIVE RECORDING & ANALYSIS
 # ==========================================
 with tab1:
-    st.subheader("1. Voice Sample Acquisition")
-    st.markdown("Ask patient to describe the 'Cookie Theft' image.")
+    # Custom CSS for Circular Recorder
+    st.markdown("""
+        <style>
+            /* 1. The Main Container (The Red Circle) */
+            div[data-testid="stAudioInput"] {
+                width: 180px !important;
+                height: 180px !important;
+                margin: 0 auto;
+                border-radius: 50% !important;
+                background-color: #E63946 !important;
+                box-shadow: 0 0 20px rgba(230, 57, 70, 0.6);
+                border: 4px solid #fff;
+                overflow: hidden; /* Clip inner content */
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            /* 2. Remove default backgrounds from ALL inner elements */
+            div[data-testid="stAudioInput"] * {
+                background-color: transparent !important;
+            }
+
+            /* 3. Style Text & Icons to be BLACK */
+            div[data-testid="stAudioInput"] p, 
+            div[data-testid="stAudioInput"] span,
+            div[data-testid="stAudioInput"] div {
+                color: #000000 !important;
+                font-weight: 900 !important; /* Bold */
+            }
+
+            /* 4. Style Buttons (Microphone / Play) */
+            div[data-testid="stAudioInput"] button {
+                color: #000000 !important;
+                border: none !important;
+                transform: scale(1.5);
+            }
+            
+            /* 5. Force Icons (SVG) to be black */
+            div[data-testid="stAudioInput"] svg {
+                fill: #000000 !important;
+                color: #000000 !important;
+            }
+
+            /* 6. Make Waveform Black */
+            div[data-testid="stAudioInput"] canvas {
+                filter: brightness(0) !important;
+                opacity: 0.8;
+            }
+
+            /* Hide the small "Record" label usually inside */
+            div[data-testid="stAudioInput"] label {
+                display: none !important;
+            }
+
+            .big-red-label {
+                text-align: center;
+                font-size: 20px;
+                color: #E0E6ED;
+                letter-spacing: 1px;
+                margin-bottom: 25px;
+                text-transform: uppercase;
+                opacity: 0.8;
+            }
+        </style>
+    """, unsafe_allow_html=True)
+
+    # Centered Layout
+    st.markdown("<div style='text-align: center; margin-top: 40px;'>", unsafe_allow_html=True)
+    st.markdown("<p class='big-red-label'>Tap to Record</p>", unsafe_allow_html=True)
     
-    col_audio, col_btn = st.columns([3, 1])
-    with col_audio:
-        audio_input = st.audio_input("Start Recording")
+    # Audio Input
+    audio_input = st.audio_input("Record") 
+    
+    st.markdown("</div>", unsafe_allow_html=True)
 
     if audio_input:
         st.audio(audio_input, format="audio/wav")
         with open("temp_input.wav", "wb") as f:
             f.write(audio_input.getvalue())
         
-        with col_btn:
-            if st.button("Run Analysis", type="primary"):
+        # Centered Analysis Button
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+            if st.button("RUN ANALYSIS 🚀", type="primary", use_container_width=True):
                 with st.spinner("Extracting 9 Neurological Biomarkers..."):
                     label, confidence, data = get_prediction("temp_input.wav")
                     
@@ -198,8 +269,20 @@ with tab2:
 
         fig = go.Figure()
         
+        # 1. Healthy Baseline (Comparison)
+        fig.add_trace(go.Scatterpolar(
+            r=[85, 80, 70, 75, 80, 85, 80, 90, 80],
+            theta=categories,
+            fill='toself',
+            name='Healthy Baseline',
+            line_color='rgba(255, 255, 255, 0.3)',
+            fillcolor='rgba(255, 255, 255, 0.05)',
+            hoverinfo='skip'
+        ))
+
+        # 2. Patient Data
         # Dynamic Color Selection (Muted/Soft)
-        fill_color = 'rgba(229, 142, 142, 0.3)' if "Decline" in label else 'rgba(114, 204, 255, 0.3)'
+        fill_color = 'rgba(229, 142, 142, 0.5)' if "Decline" in label else 'rgba(114, 204, 255, 0.5)'
         line_color = '#E58E8E' if "Decline" in label else '#72CC96'
         
         fig.add_trace(go.Scatterpolar(
@@ -208,23 +291,26 @@ with tab2:
             fill='toself', 
             name='Patient Scan', 
             line_color=line_color,
-            fillcolor=fill_color
+            fillcolor=fill_color,
+            marker=dict(size=6, color=line_color)
         ))
         
         fig.update_layout(
             paper_bgcolor='rgba(0,0,0,0)',
             plot_bgcolor='rgba(0,0,0,0)',
             polar=dict(
-                radialaxis=dict(visible=True, range=[0, 100], showticklabels=False, linecolor='#353a47'),
+                radialaxis=dict(visible=True, range=[0, 100], showticklabels=False, linecolor='rgba(255,255,255,0.2)', gridcolor='rgba(255,255,255,0.1)'),
                 angularaxis=dict(
-                    tickfont=dict(size=14, color="#E0E6ED", family="Arial Black"),
-                    rotation=90
+                    tickfont=dict(size=12, color="#aaa", family="Arial"),
+                    gridcolor='rgba(255,255,255,0.1)',
+                    linecolor='rgba(255,255,255,0.2)'
                 ),
-                bgcolor='rgba(255,255,255,0.05)'
+                bgcolor='rgba(0,0,0,0)'
             ),
             height=400, 
-            margin=dict(l=50, r=50, t=20, b=20),
-            showlegend=False
+            margin=dict(l=80, r=80, t=20, b=20),
+            showlegend=True,
+            legend=dict(font=dict(color="#ccc"), bgcolor="rgba(0,0,0,0)")
         )
         st.plotly_chart(fig, use_container_width=True)
         
