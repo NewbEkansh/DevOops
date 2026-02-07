@@ -77,7 +77,7 @@ st.markdown("""
 
 # --- 2. SIDEBAR ---
 with st.sidebar:
-    st.image("https://cdn-icons-png.flaticon.com/512/3063/3063823.png", width=80)
+    st.image("./brain.png", width=80)
     st.title("NeuroSentinel")
     st.caption("v1.2 (Clinical Research Build)")
     st.markdown("---")
@@ -96,7 +96,7 @@ with st.sidebar:
     st.metric("Live Dataset Accuracy", f"{current_accuracy}%", delta="Real-time")
 
 # --- 3. MAIN APP LAYOUT ---
-st.title("🧠 Cognitive Assessment Dashboard")
+st.title("Cognitive Assessment Dashboard")
 st.markdown(f"**Patient:** `{patient_id}` | **Date:** `{datetime.now().strftime('%Y-%m-%d')}`")
 
 tab1, tab2, tab3 = st.tabs(["🎙️ New Assessment", "📊 Biomarker Details", "📈 Clinical History"])
@@ -247,20 +247,28 @@ with tab2:
         m1, m2, m3 = st.columns(3)
         m1.metric("Pause Rate", f"{data['pause_rate'][0]:.2f}", 
                     delta="Risk" if data['pause_rate'][0] > 0.4 else "Normal", delta_color="inverse")
-        m2.metric("Vocab Richness", f"{data['vocab_richness'][0]:.2f}")
-        m3.metric("Word Count", f"{data['word_count'][0]}")
+        m2.metric("Vocab Richness", f"{data['vocab_richness'][0]:.2f}",
+                    delta="Good" if data['vocab_richness'][0] > 0.75 else "Low", delta_color="normal" if data['vocab_richness'][0] > 0.75 else "inverse")
+        m3.metric("Word Count", f"{data['word_count'][0]}",
+                    delta="Good" if data['word_count'][0] > 20 else "Low", delta_color="normal" if data['word_count'][0] > 20 else "inverse")
         
         # Row 2
         m4, m5, m6 = st.columns(3)
-        m4.metric("Speech Rate", f"{data['speech_rate'][0]:.1f} wps")
-        m5.metric("Initial Latency", f"{data['initial_latency'][0]:.2f}s")
-        m6.metric("Acoustic Texture", f"{data['acoustic_texture'][0]:.2f}")
+        m4.metric("Speech Rate", f"{data['speech_rate'][0]:.1f} wps",
+                    delta="Good" if data['speech_rate'][0] > 2.0 else "Slow", delta_color="normal" if data['speech_rate'][0] > 2.0 else "inverse")
+        m5.metric("Initial Latency", f"{data['initial_latency'][0]:.2f}s",
+                    delta="Fast" if data['initial_latency'][0] < 0.5 else "Delayed", delta_color="normal" if data['initial_latency'][0] < 0.5 else "inverse")
+        m6.metric("Acoustic Texture", f"{data['acoustic_texture'][0]:.2f}",
+                    delta="Clear" if data['acoustic_texture'][0] > -350 else "Muffled", delta_color="normal" if data['acoustic_texture'][0] > -350 else "inverse")
 
         # Row 3
         m7, m8, m9 = st.columns(3)
-        m7.metric("MFCC Delta", f"{data['mfcc_delta'][0]:.4f}")
-        m8.metric("Brightness", f"{data['speech_brightness'][0]:.0f} Hz")
-        m9.metric("Emotional Range", f"{data['emotional_range'][0]:.1f}")
+        m7.metric("MFCC Delta", f"{data['mfcc_delta'][0]:.4f}",
+                    delta="Stable" if abs(data['mfcc_delta'][0]) < 0.05 else "Variable", delta_color="normal" if abs(data['mfcc_delta'][0]) < 0.05 else "inverse")
+        m8.metric("Brightness", f"{data['speech_brightness'][0]:.0f} Hz",
+                    delta="Good" if data['speech_brightness'][0] > 1500 else "Low", delta_color="normal" if data['speech_brightness'][0] > 1500 else "inverse")
+        m9.metric("Emotional Range", f"{data['emotional_range'][0]:.1f}",
+                    delta="Expressive" if data['emotional_range'][0] > 1000000 else "Flat", delta_color="normal" if data['emotional_range'][0] > 1000000 else "inverse")
 
         # --- Radar Chart ---
         st.markdown("##### 🧠 Neurological Fingerprint")
@@ -357,17 +365,19 @@ with tab3:
         
         # Graph 1: Pause Rate Trajectory
         fig_pause = px.line(h_df, x='timestamp', y='pause_rate', markers=True, title="Pause Rate Trajectory")
-        fig_pause.add_hline(y=0.40, line_dash="dash", line_color="red", annotation_text="Risk Threshold")
+        fig_pause.add_hline(y=0.40, line_dash="dash", line_color="red", annotation_text="Risk Threshold (>0.4 = Risk)")
         fig_pause.update_traces(line_color='#E58E8E')
         st.plotly_chart(fig_pause, use_container_width=True)
         
         # Graph 2: Word Count Trajectory
         fig_words = px.line(h_df, x='timestamp', y='word_count', markers=True, title="Word Count Trajectory")
+        fig_words.add_hline(y=20, line_dash="dash", line_color="white", annotation_text="Minimum Threshold (>20 = Good)")
         fig_words.update_traces(line_color='#72CC96')
         st.plotly_chart(fig_words, use_container_width=True)
         
         # Graph 3: Speech Rate Trajectory
         fig_rate = px.line(h_df, x='timestamp', y='speech_rate', markers=True, title="Speech Rate Trajectory")
+        fig_rate.add_hline(y=2.0, line_dash="dash", line_color="orange", annotation_text="Minimum Threshold (>2.0 = Good)")
         fig_rate.update_traces(line_color='#72CCFF')
         st.plotly_chart(fig_rate, use_container_width=True)
         st.dataframe(h_df)
