@@ -4,6 +4,7 @@ import time
 import os
 import plotly.express as px
 import plotly.graph_objects as go
+from report import generate_pdf
 from datetime import datetime
 
 # --- IMPORT BACKEND ---
@@ -99,6 +100,24 @@ with tab1:
                         confidence, 
                         data['pause_rate'][0], 
                         data['vocab_richness'][0]
+                    )
+                    st.success("Analysis Complete & Saved to Database.")
+                    
+                    # --- NEW CODE: GENERATE PDF ---
+                    report_path = generate_pdf(
+                        patient_id, 
+                        {"pause_rate": data['pause_rate'][0], "vocab_richness": data['vocab_richness'][0], "word_count": data['word_count'][0]},
+                        label
+                    )
+                    
+                    with open(report_path, "rb") as pdf_file:
+                        pdf_bytes = pdf_file.read()
+                        
+                    st.download_button(
+                        label="📄 Download Clinical Report (PDF)",
+                        data=pdf_bytes,
+                        file_name=f"NeuroSentinel_Report_{patient_id}.pdf",
+                        mime="application/pdf"
                     )
                     
                     # STORE IN SESSION STATE (To persist across re-runs)
