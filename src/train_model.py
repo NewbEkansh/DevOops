@@ -6,10 +6,12 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.metrics import accuracy_score, classification_report
 from sklearn.preprocessing import StandardScaler
-from imblearn.over_sampling import SMOTE  # Run: pip install imbalanced-learn
+
 
 # --- CONFIG ---
-DATA_PATH = "data/dataset.csv"
+# --- CONFIG ---
+DATA_PATH = "data/synthetic_dataset.csv"
+MODEL_PATH = "models/neuro_model.pkl"
 MODEL_PATH = "models/neuro_model.pkl"
 SCALER_PATH = "models/scaler.pkl" # We must save the scaler for the app!
 
@@ -30,11 +32,10 @@ scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X)
 
 # --- OPTIMIZATION STEP 2: Handle Class Imbalance ---
-# Synthetic Minority Over-sampling Technique (SMOTE)
-# Creates synthetic samples so 'Severe' and 'Healthy' have equal weight.
-print("⚖️ Balancing dataset classes...")
-smote = SMOTE(random_state=42, k_neighbors=1)
-X_res, y_res = smote.fit_resample(X_scaled, y)
+# COMPLETE: We are now using a balanced synthetic dataset (2000 samples).
+# No need for SMOTE anymore.
+print("✅ Using balanced synthetic dataset.")
+X_res, y_res = X_scaled, y
 
 # 3. Split Data
 X_train, X_test, y_train, y_test = train_test_split(X_res, y_res, test_size=0.2, random_state=42)

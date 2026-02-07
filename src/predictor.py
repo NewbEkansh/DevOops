@@ -107,7 +107,8 @@ def extract_features_from_audio(file_path):
             "emotional_range": round(emotional_range, 3),
             "speech_rate": round(speech_rate, 3)
         }])
-    except:
+    except Exception as e:
+        print(f"❌ Feature Extraction Error: {e}")
         return None
 
 def get_prediction(audio_path):

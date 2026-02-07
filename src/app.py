@@ -219,6 +219,8 @@ with tab1:
                             "report_path": report_path
                         }
                         st.success("Analysis Complete! switch to 'Biomarker Details' tab to view results.")
+                    else:
+                        st.error("Analysis Failed: Could not extract biomarkers. Please ensure you spoke clearly or try recording again.")
 
 # ==========================================
 # TAB 2: DETAILED BIOMARKERS
@@ -353,31 +355,21 @@ with tab3:
         # Sort by ID (chronological)
         h_df = h_df.sort_values(by="id")
         
-        # Metric Selector
-        metric_options = {
-            "Pause Rate": "pause_rate",
-            "Recall Vocabulary": "vocab_richness",
-            "Word Count": "word_count",
-            "Speech Rate": "speech_rate",
-            "Initial Latency": "initial_latency",
-            "Acoustic Texture": "acoustic_texture",
-            "MFCC Delta": "mfcc_delta",
-            "Speech Brightness": "speech_brightness",
-            "Emotional Range": "emotional_range",
-            "Confidence": "confidence"
-        }
+        # Graph 1: Pause Rate Trajectory
+        fig_pause = px.line(h_df, x='timestamp', y='pause_rate', markers=True, title="Pause Rate Trajectory")
+        fig_pause.add_hline(y=0.40, line_dash="dash", line_color="red", annotation_text="Risk Threshold")
+        fig_pause.update_traces(line_color='#E58E8E')
+        st.plotly_chart(fig_pause, use_container_width=True)
         
-        selected_label = st.selectbox("Select Metric to Visualize:", list(metric_options.keys()))
-        selected_col = metric_options[selected_label]
+        # Graph 2: Word Count Trajectory
+        fig_words = px.line(h_df, x='timestamp', y='word_count', markers=True, title="Word Count Trajectory")
+        fig_words.update_traces(line_color='#72CC96')
+        st.plotly_chart(fig_words, use_container_width=True)
         
-        # Dynamic Graph
-        fig_t = px.line(h_df, x='timestamp', y=selected_col, markers=True, title=f"{selected_label} Trajectory")
-        
-        # Add threshold line only for Pause Rate (as it's the main risk indicator)
-        if selected_col == "pause_rate":
-            fig_t.add_hline(y=0.40, line_dash="dash", line_color="red", annotation_text="Risk Threshold")
-            
-        st.plotly_chart(fig_t, use_container_width=True)
+        # Graph 3: Speech Rate Trajectory
+        fig_rate = px.line(h_df, x='timestamp', y='speech_rate', markers=True, title="Speech Rate Trajectory")
+        fig_rate.update_traces(line_color='#72CCFF')
+        st.plotly_chart(fig_rate, use_container_width=True)
         st.dataframe(h_df)
     else:
         st.warning("No historical records found.")
