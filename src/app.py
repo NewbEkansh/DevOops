@@ -6,6 +6,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from report import generate_pdf
 from datetime import datetime
+import random # Imported at top for cleaner code
 
 # --- IMPORT BACKEND ---
 try:
@@ -29,8 +30,13 @@ if "db_init" not in st.session_state:
 
 current_accuracy = calculate_current_accuracy()
 
-# Custom CSS for "Medical" Look
-# Custom CSS for "Medical" Look - Midnight Navy Theme & Elderly Friendly
+# --- DYNAMIC PATH SETUP (THE FIX) ---
+# We calculate the path to brain.png relative to this file (app.py)
+current_dir = os.path.dirname(os.path.abspath(__file__))
+root_dir = os.path.dirname(current_dir) # Go up one level to root
+logo_path = os.path.join(root_dir, "brain.png")
+
+# --- CUSTOM CSS ---
 st.markdown("""
     <style>
         /* Soft Dark Background */
@@ -77,7 +83,13 @@ st.markdown("""
 
 # --- 2. SIDEBAR ---
 with st.sidebar:
-    st.image("../brain.png", width=80)
+    # --- FIX APPLIED HERE ---
+    if os.path.exists(logo_path):
+        st.image(logo_path, width=80)
+    else:
+        st.write("🧠") # Fallback emoji so app doesn't crash
+    # ------------------------
+    
     st.title("NeuroSentinel")
     st.caption("v1.2 (Clinical Research Build)")
     st.markdown("---")
@@ -86,7 +98,6 @@ with st.sidebar:
     
     # Generate unique patient ID on first load
     if "patient_id" not in st.session_state:
-        import random
         st.session_state.patient_id = f"PT-{random.randint(1000, 9999)}-{random.choice(['A', 'B', 'C', 'D', 'E', 'F', 'X', 'Y', 'Z'])}"
     
     patient_id = st.text_input("Patient ID / MRN", value=st.session_state.patient_id)
