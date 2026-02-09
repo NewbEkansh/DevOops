@@ -8,6 +8,8 @@
 
 ---
 
+**STREAMLIT DEMO LIVE- https://devoops-eq2x4aewddar6wxa3qmwk6.streamlit.app/**    
+
 ## 🚀 Quick Start - How to Run
 
 ### Prerequisites
