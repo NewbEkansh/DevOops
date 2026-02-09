@@ -1,4 +1,31 @@
 import streamlit as st
+import os
+
+# --- DEBUG: DIAGNOSE CLOUD PATHS ---
+st.write("📂 Current Working Directory:", os.getcwd())
+
+st.write("📂 Files in Root:")
+try:
+    st.write(os.listdir("."))
+except Exception as e:
+    st.write(f"Error: {e}")
+
+st.write("📂 Files in 'models' folder:")
+try:
+    st.write(os.listdir("models"))
+except Exception as e:
+    st.write(f"⚠️ Could not access 'models' folder: {e}")
+
+st.write("📂 Files in 'src' folder:")
+try:
+    st.write(os.listdir("src"))
+except Exception as e:
+    st.write(f"⚠️ Could not access 'src' folder: {e}")
+    
+st.stop() # <--- STOPS THE APP HERE SO YOU CAN READ IT
+# -----------------------------------
+
+import streamlit as st
 import pandas as pd
 import time
 import os
