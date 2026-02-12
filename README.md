@@ -13,7 +13,7 @@
 ## 🚀 Quick Start - How to Run
 
 ### Prerequisites
-- Python 3.8 or higher
+- (Python 3.8 or higher)
 - Microphone access (for live recording)
 - ~500MB disk space (for Vosk speech recognition model)
 
